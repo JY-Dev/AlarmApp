@@ -1,17 +1,20 @@
-package com.example.alarmapp
+package com.example.alarmapp.Adapter
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
-import android.database.DataSetObserver
-import android.os.Build
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.example.alarmapp.Room.DataProcess
+import com.example.alarmapp.Noti.AlarmBR
+import com.example.alarmapp.R
+import com.example.alarmapp.Room.Alarm
+import com.example.alarmapp.Room.AlarmDatabase
+import com.example.alarmapp.Formatt.TimeFormatt
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
@@ -68,12 +71,14 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
                 if (checkOverlap(mils)){
                     cancelAlarm(id)
                     it?.getAlarmDao()?.updateById(mils,id)
-                    DataProcess().startBroadcast(mContext,mils)
+                    DataProcess()
+                        .startBroadcast(mContext,mils)
                 }
             }
 
         cal.timeInMillis = TimeFormatt().calAlarmTime(cal.timeInMillis)
-        Toast.makeText(mContext,TimeFormatt().timeToString1(cal), Toast.LENGTH_LONG).show()
+        Toast.makeText(mContext,
+            TimeFormatt().timeToString1(cal), Toast.LENGTH_LONG).show()
     }
 
     override fun getItem(position: Int): Any {
@@ -102,7 +107,7 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
 
     private fun cancelAlarm(id : Long){
         val alarmManger = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(mContext,AlarmBR::class.java)
+        val intent = Intent(mContext, AlarmBR::class.java)
         val pendingIntent = PendingIntent.getBroadcast(mContext,id.toInt(),intent,0)
         alarmManger.cancel(pendingIntent)
     }

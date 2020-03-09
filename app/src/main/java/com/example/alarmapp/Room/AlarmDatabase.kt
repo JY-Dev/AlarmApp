@@ -1,4 +1,4 @@
-package com.example.alarmapp
+package com.example.alarmapp.Room
 
 import android.content.Context
 import androidx.room.Database

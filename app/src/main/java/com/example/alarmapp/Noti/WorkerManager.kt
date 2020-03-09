@@ -1,20 +1,11 @@
-package com.example.alarmapp
+package com.example.alarmapp.Noti
 
-import android.R
-import android.app.ActivityManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.widget.Toast
-import androidx.core.app.NotificationCompat
-import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
+import com.example.alarmapp.Room.DataProcess
 
 
 class WorkerManager(context: Context , workerParameters: WorkerParameters) : Worker(context,workerParameters) {

@@ -1,4 +1,4 @@
-package com.example.alarmapp
+package com.example.alarmapp.Room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,4 +1,4 @@
-package com.example.alarmapp
+package com.example.alarmapp.Formatt
 
 import java.text.DateFormat
 import java.text.SimpleDateFormat

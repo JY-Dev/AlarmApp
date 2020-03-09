@@ -1,6 +1,7 @@
-package com.example.alarmapp
+package com.example.alarmapp.Room
 
 import androidx.room.*
+import com.example.alarmapp.Room.Alarm
 import io.reactivex.Flowable
 
 @Dao

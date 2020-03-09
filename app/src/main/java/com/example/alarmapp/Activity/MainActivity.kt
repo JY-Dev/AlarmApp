@@ -1,20 +1,13 @@
-package com.example.alarmapp
+package com.example.alarmapp.Activity
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.app.TimePickerDialog
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.example.alarmapp.Adapter.AlarmListAdpater
+import com.example.alarmapp.Room.DataProcess
+import com.example.alarmapp.Formatt.TimeFormatt
+import com.example.alarmapp.R
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
