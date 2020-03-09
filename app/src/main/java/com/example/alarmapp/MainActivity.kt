@@ -27,86 +27,51 @@ class MainActivity : AppCompatActivity() {
     private val timeFormatt = TimeFormatt()
     private val cal = Calendar.getInstance()
     private val cal2 = Calendar.getInstance()
-    private lateinit var mAdpater : AlarmListAdpater
+    private lateinit var mAdpater: AlarmListAdpater
+    private val dataProcess = DataProcess()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         millis = cal.timeInMillis
-        loadData(this)
-        mAdpater = AlarmListAdpater(this)
 
+        mAdpater = AlarmListAdpater(this)
+        dataProcess.loadData(this, mAdpater)
         alarm_list.adapter = mAdpater
 
         alarm_reg_btn.setOnClickListener {
             setTime()
             cal2.timeInMillis = timeFormatt.calAlarmTime(millis)
-            Toast.makeText(this,timeFormatt.timeToString1(cal2),Toast.LENGTH_LONG).show()
-            insertData(this,millis)
+            Toast.makeText(this, timeFormatt.timeToString1(cal2), Toast.LENGTH_LONG).show()
+            dataProcess.insertData(this, millis)
+            System.out.println("test=" + millis)
 
         }
     }
 
-    private fun setTime(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+    /*
+    시간 설정 함수
+     */
+    private fun setTime() {
+
+        //시간 셋팅
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             hour = time_picker.hour
             min = time_picker.minute
         } else {
             hour = time_picker.currentHour
             min = time_picker.currentMinute
         }
-        cal.set(Calendar.HOUR_OF_DAY,hour)
-        cal.set(Calendar.MINUTE,min)
-        cal.set(Calendar.SECOND,0)
+
+        //캘린더에 시간입력
+        cal.set(Calendar.HOUR_OF_DAY, hour)
+        cal.set(Calendar.MINUTE, min)
+        cal.set(Calendar.SECOND, 0)
+
+        //시간 밀리세컨드
         millis = timeFormatt.detailSetTIme(cal.timeInMillis)
     }
-
-    private fun startBroadcast() {
-        val intent = Intent(this, AlarmBR::class.java)
-        val pendingIntent =
-            PendingIntent.getBroadcast(applicationContext, timeFormatt.checkPreTime(millis).toInt(), intent, 0)
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        when {
-            Build.VERSION.SDK_INT >= 23 -> alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,timeFormatt.checkPreTime(millis),pendingIntent)
-            Build.VERSION.SDK_INT >= 19 -> alarmManager.setExact(AlarmManager.RTC_WAKEUP,timeFormatt.checkPreTime(millis),pendingIntent)
-            else -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,timeFormatt.checkPreTime(millis),AlarmManager.INTERVAL_DAY,pendingIntent)
-        }
-
-    }
-
-    private fun insertData(context:Context , mil : Long){
-        val alarm = Alarm(mil,mil)
-
-        Observable.just(alarm)
-            .subscribeOn(Schedulers.io())
-            .subscribe( {
-                AlarmDatabase.getInstance(context)
-                    ?.getAlarmDao()
-                    ?.insert(alarm)
-                startBroadcast()
-
-            },
-                {
-                })
-    }
-
-    private fun loadData(context: Context){
-        AlarmDatabase
-            .getInstance(context)!!
-            .getAlarmDao()
-            .getAllAlarm()
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe {}
-                .doOnTerminate {}
-                    .subscribe( {
-                        mAdpater.setItem(it.toMutableList())
-                    }, {
-
-                        Log.e("MyTag", it.message)
-
-                    })
-    }
-
 
 }

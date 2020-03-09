@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.database.DataSetObserver
 import android.os.Build
 import android.os.Handler
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
 
     private var mContext: Context = context
     var alarmList : MutableList<Alarm> = mutableListOf()
+    private val dataProcess = DataProcess()
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
         val view : View
@@ -40,12 +42,7 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
         holder.tv1?.text = TimeFormatt().timeToString2(calendar)
 
         holder.deleteBtn?.setOnClickListener {
-            Observable.just(AlarmDatabase.getInstance(mContext))
-                .subscribeOn(Schedulers.io())
-                .subscribe {
-                    it?.getAlarmDao()?.deletById(alarmList[position].id)
-                    cancelAlarm(alarmList[position].id)
-                }
+            dataProcess.deleteData(mContext,alarmList[position].id) {cancelAlarm(alarmList[position].id)}
         }
 
         holder.modifyBtn?.setOnClickListener {
@@ -54,7 +51,6 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
             TimePickerDialog(mContext, modifyAlarm(alarmList[position].id), modifyCal.get(Calendar.HOUR_OF_DAY), modifyCal.get(Calendar.MINUTE), false).show()
         }
 
-        DataProcess().dataSave(mContext,alarmList)
 
         return view
     }
@@ -72,15 +68,13 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
                 if (checkOverlap(mils)){
                     cancelAlarm(id)
                     it?.getAlarmDao()?.updateById(mils,id)
-                    startBroadcast(mils)
+                    DataProcess().startBroadcast(mContext,mils)
                 }
             }
 
         cal.timeInMillis = TimeFormatt().calAlarmTime(cal.timeInMillis)
         Toast.makeText(mContext,TimeFormatt().timeToString1(cal), Toast.LENGTH_LONG).show()
     }
-
-
 
     override fun getItem(position: Int): Any {
        return alarmList[position]
@@ -98,16 +92,6 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
         alarmList = itemList
         notifyDataSetChanged()
     }
-
-    private fun startBroadcast(mil:Long) {
-        val intent = Intent(mContext, AlarmBR::class.java)
-        val pendingIntent =
-            PendingIntent.getBroadcast(mContext.applicationContext, TimeFormatt().checkPreTime(mil).toInt(), intent, 0)
-        val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (Build.VERSION.SDK_INT >= 19) alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,TimeFormatt().checkPreTime(mil),AlarmManager.INTERVAL_DAY,pendingIntent)
-        else alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,TimeFormatt().checkPreTime(mil),AlarmManager.INTERVAL_DAY,pendingIntent)
-    }
-
 
     private fun checkOverlap(selId : Long) : Boolean{
         alarmList.forEach {
@@ -128,5 +112,4 @@ class AlarmListAdpater(context:Context) : BaseAdapter(){
         var modifyBtn : Button? = null
         var deleteBtn : Button? = null
     }
-
 }
